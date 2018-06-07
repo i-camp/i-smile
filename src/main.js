@@ -9,8 +9,8 @@ import titleMixin from '@/title'
 import 'vuetify/dist/vuetify.min.css'
 
 // import submodule
-import Store from '@/store/index';
-import router from '@/routes';
+import Store from '@/store/index'
+import router from '@/routes'
 // import component
 import App from '@/App.vue'
 

@@ -1,4 +1,4 @@
-export default class localStorage {
+export default class Storage {
 
   setStorage(key, value, expire) {
     let data;
@@ -19,7 +19,7 @@ export default class localStorage {
       return undefined;
     }
     s = JSON.parse(s);
-    if (new Date(s.expire) > new Date()) {
+    if (new Date(s.expire).getTime() > new Date().getTime()) {
       return s.value;
     } else {
       localStorage.removeItem(key);

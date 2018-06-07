@@ -5,7 +5,7 @@
         <v-btn icon @click="goToBack" v-if="displayableBack">
           <v-icon>arrow_back</v-icon>
         </v-btn>
-        <v-toolbar-title>i smile</v-toolbar-title>
+        <v-toolbar-title>i-smile</v-toolbar-title>
       </v-toolbar>
       <v-content>
         <router-view></router-view>

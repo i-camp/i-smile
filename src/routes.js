@@ -7,15 +7,11 @@ import Reading from '@/components/Reading.vue'
 import Generate from '@/components/Generate.vue'
 import Emotiondetection from '@/components/Emotiondetection.vue'
 
-const FakeAuth = {
-  isAuthenticated() {
-    return true;
-  }
-};
+import User from '@/user'
 
 // Pass middleware name and callback function
 createMiddleware('require-auth', (args, to, from, next) => {
-  if (FakeAuth.isAuthenticated()) {
+  if (User.hasUser()) {
     if (to.name === 'login') {
       next({ path: '/' });
       return;
