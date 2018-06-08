@@ -10,9 +10,11 @@
   "dependencies": {
     "clmtrackr": "^1.1.2",
     "d3": "^5.4.0",
+    "uuid": "^3.2.1",
     "vue": "^2.5.16",
     "vue-router": "^3.0.1",
     "vue-router-middleware": "^0.2.1",
+    "vuelidate": "^0.7.4",
     "vuetify": "^1.0.19",
     "vuex": "^3.0.1"
   },

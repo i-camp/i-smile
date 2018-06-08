@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import Vuetify from 'vuetify'
+import Vuelidate from 'vuelidate'
 import VueRouter from 'vue-router'
 import VueRouterMiddleware from 'vue-router-middleware'
 import titleMixin from '@/title'
@@ -26,6 +27,7 @@ Vue.use(Vuetify, {
     success: "#4caf50",
   }
 })
+Vue.use(Vuelidate)
 Vue.use(VueRouter)
 Vue.use(VueRouterMiddleware, { router });
 Vue.mixin(titleMixin)

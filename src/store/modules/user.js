@@ -2,19 +2,22 @@ export default {
   namespaced: true,
   state: {
     name: '',
+    language: null,
     uuid: '',
   },
   getters: {},
   mutations: {
-    setUser (state, user) {
-      state.name = user.name;
-      state.uuid = user.uuid;
+    setUser (state, payload) {
+      state.name     = payload.name;
+      state.language = payload.language;
+      state.uuid     = payload.uuid;
     }
   },
   actions: {
-    setUser({ commit }, name, uuid) {
+    setUser({ commit }, name, language, uuid) {
       let payload = {
         name: name,
+        language: language,
         uuid: uuid,
       };
       commit('setUser', payload);
