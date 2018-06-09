@@ -1,49 +1,43 @@
 <template>
   <div class="container">
-    <!-- <button @click="switchCamera">switch camea</button> -->
-    <video width="400" height="400" class="videoel" ref="videoel" preload="auto" loop playsinline autoplay></video>
-    <canvas width="400" height="400" class="overlay" ref="overlay"></canvas>
-    <div ref='emotion_chart'></div>
+    <button @click="switchCamera">switch camea</button>
+    <div class="video-wrapper">
+      <video width="300" height="300" class="videoel" ref="videoel" preload="auto" loop playsinline autoplay></video>
+      <canvas width="300" height="300" class="overlay" ref="overlay"></canvas>
+    </div>
     <p>{{ emotionParam[0].emotion }}</p>
     <p>{{ emotionParam[0].value }}</p>
   </div>
 </template>
 
 <style>
-.container {
+.video-wrapper {
+  width: 300px;
+  height: 300px;
+  overflow: hidden;
+  display: block;
   position: relative;
 }
-.videoel, .overlay{
-  /* height: 100%;
-  height: 100vh;
-  width: 100%;
-  width: 100vw; */
-  display: block;
-}
-.overlay {
+.videoel, .overlay {
   position: absolute;
-  top: 0px;
-  left: 0px;
-  -o-transform : scaleX(-1);
-  -webkit-transform : scaleX(-1);
-  transform : scaleX(-1);
-  -ms-filter : fliph; /*IE*/
-  filter : fliph; /*IE*/
-  
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
 }
 .videoel {
-  -o-transform : scaleX(-1);
-  -webkit-transform : scaleX(-1);
-  transform : scaleX(-1);
-  -ms-filter : fliph; /*IE*/
-  filter : fliph; /*IE*/
+  z-index: 1;
+  min-width: 100vw;
+  min-height: 100vh;
+}
+.overlay {
+  z-index: 2;
 }
 </style>
 
 <script>
   import * as clmtrackr from 'clmtrackr'
-  import * as d3 from 'd3'
-  import {scaleLinear} from "d3-scale"
   import emotionClassifier from '@/components/utils/emotionClassifier';
   import videoHelper from '@/components/utils/videoHelper'
   import pModel from '@/components/models/model_pca_20_svm'
@@ -57,8 +51,6 @@
     ],
     data() {
       return {
-        ww: 0,
-        wh: 0,
         vid: null,
         vw: 0,
         vh: 0,
@@ -66,22 +58,14 @@
         overlayCC: null,
         ctrack: null,
         trackingStarted: false,
-        margin: {top : 20, right : 20, bottom : 10, left : 40},
-        x: null,
-        y: null,
-        width: null,
-        height: null,
-        svg: null,
         ec: null,
         emotionData: null,
         emotionParam: [
           {emotion: "happy", value: 0},
         ],
+        currentCamera: 0,
+        videoSrouces: [],
       }
-    },
-    created() {
-      this.ww = window.innerWidth;
-      this.wh = window.innerHeight;
     },
     mounted() {
       this.vid       = this.$refs.videoel;
@@ -89,85 +73,55 @@
       this.vh        = this.vid.height;
       this.overlay   = this.$refs.overlay;
       this.overlayCC = this.overlay.getContext('2d');
-      this.init();
+      
+      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+      window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
+      
+      pModel.shapeModel.nonRegularizedVectors.push(9);
+      pModel.shapeModel.nonRegularizedVectors.push(11);
+
+      this.ctrack = new clm.tracker({useWebGL : true});
+      this.ctrack.init(pModel);
+
+      this.ec = new emotionClassifier(emotionModel);
+      this.emotionData = this.ec.getBlank();
+
+      this.vid.addEventListener('canplay', this.startVideo, false);
+
+      this.setCamera().then(() => {
+        this.defaultCamera();
+        this.init();
+      });
     },
     methods: {
       init() {
-        // TODO
-        // MediaStreamTrack.getSources(data => {console.log(data)});
-        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-				window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
-				// check for camerasupport
+        let param = {video: {
+            mandatory: {
+              minWidth: "960",
+              minHeight: "720"
+            },
+            optional: [
+              {sourceId: this.videoSrouces[this.currentCamera].deviceId}
+            ]
+          }
+        };
+        // check for camerasupport
 				if (navigator.mediaDevices) {
-					navigator.mediaDevices.getUserMedia({video : true}).then(this.gumSuccess).catch(this.gumFail);
+					navigator.mediaDevices.getUserMedia(param).then(this.gumSuccess).catch(this.gumFail);
 				} else if (navigator.getUserMedia) {
-					navigator.getUserMedia({video : true}, this.gumSuccess, this.gumFail);
+					navigator.getUserMedia(param, this.gumSuccess, this.gumFail);
 				} else {
 					alert("This demo depends on getUserMedia, which your browser does not seem to support. :(");
         }
-        
-        pModel.shapeModel.nonRegularizedVectors.push(9);
-        pModel.shapeModel.nonRegularizedVectors.push(11);
-        
-        this.ctrack = new clm.tracker({useWebGL : true});
-        this.ctrack.init(pModel);
-
-        this.ec = new emotionClassifier(emotionModel);
-        this.emotionData = this.ec.getBlank();
-        this.initD3();
-
-        this.vid.addEventListener('canplay', this.startVideo, false);
       },
-      initD3() {
-        this.width = 400 - this.margin.left - this.margin.right;
-        this.height = 100 - this.margin.top - this.margin.bottom;
-        let barWidth = 30;
-        this.x = scaleLinear()
-          .domain([0, this.ec.getEmotions().length]).range([this.margin.left, this.width + this.margin.left]);
-        this.y = scaleLinear()
-          .domain([0,1]).range([0, this.height]);
-        this.svg = d3.select(this.$refs.emotion_chart).append("svg")
-          .attr("width", this.width + this.margin.left + this.margin.right)
-          .attr("height", this.height + this.margin.top + this.margin.bottom)
-        this.svg.selectAll("rect").
-          data(this.emotionData).
-          enter().
-          append("svg:rect").
-          attr("x", (datum, index) => { return this.x(index); }).
-          attr("y", datum => { return this.height - this.y(datum.value); }).
-          attr("height", datum => { return this.y(datum.value); }).
-          attr("width", barWidth).
-          attr("fill", "#2d578b");
-        this.svg.selectAll("text.labels").
-          data(this.emotionData).
-          enter().
-          append("svg:text").
-          attr("x", (datum, index) => { return this.x(index) + barWidth; }).
-          attr("y", datum => { return this.height - this.y(datum.value); }).
-          attr("dx", -barWidth/2).
-          attr("dy", "1.2em").
-          attr("text-anchor", "middle").
-          text(datum => { return datum.value;}).
-          attr("fill", "white").
-          attr("class", "labels");
-        this.svg.selectAll("text.yAxis").
-          data(this.emotionData).
-          enter().append("svg:text").
-          attr("x", (datum, index) => { return this.x(index) + barWidth; }).
-          attr("y", this.height).
-          attr("dx", barWidth/2).
-          attr("text-anchor", "middle").
-          attr("style", "font-size: 12").
-          text(datum => { return datum.emotion;}).
-          attr("transform", "translate(0, 18)").
-          attr("class", "yAxis");
-      },
+
       startVideo() {
         this.vid.play();
         this.ctrack.start(this.vid);
         this.trackingStarted = true;
         this.drawLoop();
       },
+
       drawLoop() {
         window.requestAnimFrame(this.drawLoop);
         this.overlayCC.clearRect(0, 0, this.vw, this.vh);
@@ -178,13 +132,27 @@
         let er = this.ec.meanPredict(cp);
         if (er) {
           this.emotionParam = er;
-          this.updateData(er);
         }
       },
-      // TODO
-      setCamera() {
-        // MediaStreamTrack.getSources(data => {});
+
+      adjustVideoProportions() {
+        // resize overlay and video if proportions are different
+        // keep same height, just change width
+        let proportion = this.vid.videoWidth/this.vid.videoHeight;
+        this.vw = Math.round(this.vh * proportion);
+        this.vid.width = this.vw;
+        this.overlay.width = this.vw;
       },
+
+      setCamera() {
+        return navigator.mediaDevices.enumerateDevices().then(sourcesInfo => {
+          // 取得できたカメラとマイクを含むデバイスからカメラだけをフィルターする
+          this.videoSrouces = sourcesInfo.filter(elem => {
+              return elem.kind === 'videoinput';
+          });
+        });
+      },
+
       gumSuccess(stream) {
         // add camera stream if getUserMedia succeeded
         if ("srcObject" in this.vid) {
@@ -205,43 +173,47 @@
           }
         }
       },
-      adjustVideoProportions() {
-        // resize overlay and video if proportions are different
-        // keep same height, just change width
-        let proportion = this.vid.videoWidth / this.vid.videoHeight;
-        this.vw = Math.round(this.vw * proportion);
-        // this.vid.width = this.vw;
-        // this.overlay.width = this.vw;
-      },
+
       gumFail() {
         alert("There was some problem trying to fetch video from your webcam. If you have a webcam, please make sure to accept when the browser asks for access to your webcam.");
       },
-      updateData(data) {
-        // update
-        let rects = this.svg.selectAll("rect")
-          .data(data)
-          .attr("y", datum => {
-            return this.height - this.y(datum.value);
-          })
-          .attr("height", datum => {
-            return this.y(datum.value);
-          });
-        let texts = this.svg.selectAll("text.labels")
-          .data(data)
-          .attr("y", datum => {
-            return this.height - this.y(datum.value);
-          })
-          .text(datum => {
-            return datum.value.toFixed(1);
-          });
-        // enter
-        rects.enter().append("svg:rect");
-        texts.enter().append("svg:text");
-        // exit
-        rects.exit().remove();
-        texts.exit().remove();
+
+      switchCamera() {
+        this.defaultCamera();
+        this.deleteCamera().then(this.init);
       },
-      switchCamera() {},
+
+      defaultCamera() {
+        this.currentCamera++;
+        if (this.currentCamera >= this.videoSrouces.length) {
+          this.currentCamera = 0;
+        }
+      },
+
+      deleteCamera() {
+        return new Promise(resolve => {
+          if (this.vid.srcObject) {
+            this.vid.srcObject.getVideoTracks().forEach(devise => {
+              devise.stop();
+            });
+            this.vid.srcObject = null;
+            resolve();
+          }
+        });
+        
+      },
     },
+    beforeDestroy() {
+      this.deleteCamera();
+    },
+    watch: {
+      emotionParam(val) {
+        val.forEach(emotion => {
+          if (emotion.emotion === 'happy' && (Math.floor(emotion.value * 10) >= 9)) {
+            console.log(`笑顔`);
+          }
+        }); 
+      }
+    }
   }
 </script>

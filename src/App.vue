@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div>
     <v-app>
       <v-toolbar dark color="primary">
         <v-btn icon @click="goToBack" v-if="displayableBack">
