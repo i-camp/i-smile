@@ -38,10 +38,11 @@
 
 <script>
   import * as clmtrackr from 'clmtrackr'
-  import emotionClassifier from '@/components/utils/emotionClassifier';
+  import emotionClassifier from '@/components/utils/emotionClassifier'
   import videoHelper from '@/components/utils/videoHelper'
   import pModel from '@/components/models/model_pca_20_svm'
-  import emotionModel from '@/components/models/emotion';
+  import emotionModel from '@/components/models/emotion'
+  import { mapState } from 'vuex'
 
   const clm = clmtrackr.default;
   const TRIM_SIZE = 640;
@@ -72,6 +73,11 @@
         videoSrouces: [],
         shot: false,
       }
+    },
+    computed: {
+      ...mapState('User', {
+        uuid: state => state.uuid,
+      })
     },
     mounted() {
       this.vid       = this.$refs.videoel;
@@ -238,6 +244,7 @@
             this.shot = true;
             this.deleteCamera();
             // console.log(this.videoCC.toDataURL());
+            // console.log(this.$route.params.uuid);
           }
         }); 
       }
