@@ -1,35 +1,35 @@
 <template>
-  <div class="container">
-    <button @click="switchCamera">switch camea</button>
+  <div>
     <div class="video-wrapper">
-      <video width="300" height="300" class="videoel" ref="videoel" preload="auto" loop playsinline autoplay></video>
-      <canvas width="300" height="300" class="overlay" ref="overlay"></canvas>
+      <canvas width="640" height="640" class="overlay" ref="overlay" v-show="!shot"></canvas>
+      <canvas width="640" height="640" class="video" ref="video"></canvas>
+      <video width="640" height="640" class="videoel" ref="videoel" preload="auto" loop playsinline autoplay></video>
     </div>
+    <button @click="switchCamera">switch camea</button>
     <p>{{ emotionParam[0].emotion }}</p>
-    <p>{{ emotionParam[0].value }}</p>
+    <p>{{ percent(emotionParam[0].value) }}</p>
   </div>
 </template>
 
 <style>
 .video-wrapper {
-  width: 300px;
-  height: 300px;
-  overflow: hidden;
-  display: block;
-  position: relative;
-}
-.videoel, .overlay {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  -webkit-transform: translate(-50%, -50%);
-  -ms-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
+  width: 100vw;
+  height: auto;
 }
 .videoel {
+  display: none;
+}
+.overlay, .video {
+  position: abusolute;
+  width: 100vw;
+  height: auto;
+  top: auto;
+  left: auto;
+  bottom: auto;
+  right: auto;
+}
+.video {
   z-index: 1;
-  min-width: 100vw;
-  min-height: 100vh;
 }
 .overlay {
   z-index: 2;
@@ -44,6 +44,7 @@
   import emotionModel from '@/components/models/emotion';
 
   const clm = clmtrackr.default;
+  const TRIM_SIZE = 640;
 
   export default {
     mixins: [
@@ -54,8 +55,12 @@
         vid: null,
         vw: 0,
         vh: 0,
+        vx: 0,
+        vy: 0,
         overlay: null,
         overlayCC: null,
+        video: null,
+        videoCC: null,
         ctrack: null,
         trackingStarted: false,
         ec: null,
@@ -65,6 +70,7 @@
         ],
         currentCamera: 0,
         videoSrouces: [],
+        shot: false,
       }
     },
     mounted() {
@@ -73,9 +79,12 @@
       this.vh        = this.vid.height;
       this.overlay   = this.$refs.overlay;
       this.overlayCC = this.overlay.getContext('2d');
+      this.video     = this.$refs.video;
+      this.videoCC   = this.video.getContext('2d');
       
       navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
       window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
+      navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
       
       pModel.shapeModel.nonRegularizedVectors.push(9);
       pModel.shapeModel.nonRegularizedVectors.push(11);
@@ -97,8 +106,8 @@
       init() {
         let param = {video: {
             mandatory: {
-              minWidth: "960",
-              minHeight: "720"
+              maxWidth: "640",
+              maxHeight: "480"
             },
             optional: [
               {sourceId: this.videoSrouces[this.currentCamera].deviceId}
@@ -117,13 +126,17 @@
 
       startVideo() {
         this.vid.play();
+        this.videoClip();
         this.ctrack.start(this.vid);
         this.trackingStarted = true;
         this.drawLoop();
       },
 
       drawLoop() {
+        this.videoCC.drawImage(this.vid, this.vx, this.vy, this.vw, this.vh);
+
         window.requestAnimFrame(this.drawLoop);
+
         this.overlayCC.clearRect(0, 0, this.vw, this.vh);
         if (this.ctrack.getCurrentPosition()) {
           this.ctrack.draw(this.overlay);
@@ -133,15 +146,6 @@
         if (er) {
           this.emotionParam = er;
         }
-      },
-
-      adjustVideoProportions() {
-        // resize overlay and video if proportions are different
-        // keep same height, just change width
-        let proportion = this.vid.videoWidth/this.vid.videoHeight;
-        this.vw = Math.round(this.vh * proportion);
-        this.vid.width = this.vw;
-        this.overlay.width = this.vw;
       },
 
       setCamera() {
@@ -161,16 +165,28 @@
           this.vid.src = (window.URL && window.URL.createObjectURL(stream));
         }
         this.vid.onloadedmetadata = () => {
-          this.adjustVideoProportions();
           this.vid.play();
         }
         this.vid.onresize = () => {
-          this.adjustVideoProportions();
           if (this.trackingStarted) {
             this.ctrack.stop();
             this.ctrack.reset();
             this.ctrack.start(this.vid);
           }
+        }
+      },
+
+      videoClip() {
+        if (this.vid.videoWidth > this.vid.videoHeight) {
+          this.vh = TRIM_SIZE;
+          this.vw = this.vid.videoWidth * (TRIM_SIZE / this.vid.videoHeight);
+          this.vx = -(this.vw - TRIM_SIZE) / 2;
+          this.vy = 0;
+        } else {
+          this.vw = TRIM_SIZE;
+          this.vh = this.vid.videoHeight * (TRIM_SIZE / this.vid.videoWidth);
+          this.vx = -(this.vh - TRIM_SIZE) / 2;
+          this.vx = 0;
         }
       },
 
@@ -199,9 +215,13 @@
             this.vid.srcObject = null;
             resolve();
           }
-        });
-        
+        });   
       },
+
+      percent(val) {
+        return Math.floor(val * 100);
+      }
+
     },
     beforeDestroy() {
       this.deleteCamera();
@@ -209,8 +229,15 @@
     watch: {
       emotionParam(val) {
         val.forEach(emotion => {
-          if (emotion.emotion === 'happy' && (Math.floor(emotion.value * 10) >= 9)) {
-            console.log(`笑顔`);
+          if (
+            emotion.emotion === 'happy'
+            && (this.percent(emotion.value) >= 99)
+            && !this.shot
+          ) {
+            navigator.vibrate(100);
+            this.shot = true;
+            this.deleteCamera();
+            // console.log(this.videoCC.toDataURL());
           }
         }); 
       }
