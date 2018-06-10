@@ -14,7 +14,7 @@ export default {
     }
   },
   actions: {
-    setUser({ commit }, name, language, uuid) {
+    setUser({ commit }, { name, language, uuid }) {
       let payload = {
         name: name,
         language: language,
