@@ -33,7 +33,7 @@
   </v-container>
 </template>
 
-<style>
+<style scoped>
   .container {
     background: url("/img/cover.jpg") no-repeat center;
     background-size: cover;

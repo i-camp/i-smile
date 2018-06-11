@@ -10,25 +10,14 @@
         <v-toolbar-title>i-smile</v-toolbar-title>
       </v-toolbar>
       <v-content>
-        <transition name="fade">
-          <router-view></router-view>
-        </transition>
+        <router-view></router-view>
       </v-content>
     </v-app>
   </div>
 </template>
 
-<style>
-  .fade-enter-active, .fade-leave-active {
-    width: 100vw;
-    position: absolute;
-    z-index: 1000;
-    transition: opacity .3s;
-  }
-  .fade-enter, .fade-leave-to {
-    opacity: 0;
-  }
-  .slide-fade-enter-active. .slide-fade-leave-active {
+<style scoped>
+  .slide-fade-enter-active, .slide-fade-leave-active {
     transition: all .3s ease;
   }
   .slide-fade-enter, .slide-fade-leave-to {
