@@ -248,12 +248,11 @@
             this.shot = true;
             this.deleteCamera();
 
-            let imagePath = uuidv4();
-
+            let imagePath  = `photos/${uuidv4()}.jpg`;
             let storageRef = firebaseApp
               .storage()
               .ref()
-              .child(`photos/${imagePath}.jpg`);
+              .child(imagePath);
             let uploadTask = storageRef.putString(this.video.toDataURL('image/jpg'), 'data_url');
             uploadTask.on('state_changed', snapshot => {
               this.progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
