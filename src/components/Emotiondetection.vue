@@ -43,9 +43,15 @@
   import pModel from '@/components/models/model_pca_20_svm'
   import emotionModel from '@/components/models/emotion'
   import { mapState } from 'vuex'
+  import firebaseApp from '@/utils/firebase'
+  import * as uuidv4 from 'uuid/v4'
 
   const clm = clmtrackr.default;
   const TRIM_SIZE = 640;
+
+  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+  window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
+  navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
 
   export default {
     mixins: [
@@ -72,6 +78,7 @@
         currentCamera: 0,
         videoSrouces: [],
         shot: false,
+        progress: 0,
       }
     },
     computed: {
@@ -87,10 +94,6 @@
       this.overlayCC = this.overlay.getContext('2d');
       this.video     = this.$refs.video;
       this.videoCC   = this.video.getContext('2d');
-      
-      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-      window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
-      navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
       
       pModel.shapeModel.nonRegularizedVectors.push(9);
       pModel.shapeModel.nonRegularizedVectors.push(11);
@@ -112,8 +115,8 @@
       init() {
         let param = {video: {
             mandatory: {
-              maxWidth: "640",
-              maxHeight: "480"
+              minWidth: "640",
+              minHeight: "480"
             },
             optional: [
               {sourceId: this.videoSrouces[this.currentCamera].deviceId}
@@ -237,14 +240,30 @@
         val.forEach(emotion => {
           if (
             emotion.emotion === 'happy'
-            && (this.percent(emotion.value) >= 99)
+            && (this.percent(emotion.value) >= 90)
             && !this.shot
           ) {
-            navigator.vibrate(100);
+            if ('vibrate' in navigator) navigator.vibrate(100);
+
             this.shot = true;
             this.deleteCamera();
-            // console.log(this.videoCC.toDataURL());
-            // console.log(this.$route.params.uuid);
+
+            let imagePath  = `photos/${uuidv4()}.jpg`;
+            let storageRef = firebaseApp
+              .storage()
+              .ref()
+              .child(imagePath);
+            let uploadTask = storageRef.putString(this.video.toDataURL('image/jpg'), 'data_url');
+            uploadTask.on('state_changed', snapshot => {
+              this.progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            });
+
+            let url;
+            uploadTask.then(snapshot => {
+              snapshot.ref.getDownloadURL().then(downloadURL => {
+                // url = downloadURL;
+              });
+            });
           }
         }); 
       }
