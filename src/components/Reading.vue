@@ -1,12 +1,13 @@
 <template>
   <div class="qrReader">
-    <p>Reading QR code</p>
     <qrcode-reader :paused="paused" @init="onInit" @decode="onDecode"></qrcode-reader>
   </div>
 </template>
 
 <script>
   import { QrcodeReader } from 'vue-qrcode-reader'
+  import { mapState } from 'vuex'
+
   export default {
     components: { QrcodeReader },
     name: "qrReader",
@@ -48,8 +49,17 @@
       onDecode(content){
         alert(content);
         this.paused = true
+        // TODO 相手のuuid
+        this.$router.push(`emotion/{{uuid}}`)
       }
-    }
+    },
+    computed: {
+      // TODO 相手のQR生成マージ後削除します。
+      // 一旦自分のuuid付けてemotionへ飛ばすよう
+      ...mapState('User', {
+        uuid: state => state.uuid,
+      })
+    },
   }
 </script>
 

@@ -1,5 +1,8 @@
 var webpack = require('webpack');
 
 module.exports = {
-  baseUrl: './'
+  configureWebpack: {
+    plugins: [
+    ]
+  }
 }
