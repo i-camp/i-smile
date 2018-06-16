@@ -25,9 +25,6 @@
       }
     };
   },
-  mounted() {
-    // console.log('mounted');
-  },
   computed: {
     ...mapState('User', {
       uuid: state => state.uuid,
