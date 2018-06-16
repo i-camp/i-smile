@@ -13,6 +13,7 @@
     "firebase": "^5.0.4",
     "uuid": "^3.2.1",
     "vue": "^2.5.16",
+    "vue-qrcode-reader": "0.7.1",
     "vue-router": "^3.0.1",
     "vue-router-middleware": "^0.2.1",
     "vuelidate": "^0.7.4",
