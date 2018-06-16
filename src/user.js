@@ -17,11 +17,7 @@ class User extends Storage {
   }
 
   mapState() {
-    Store.dispatch('User/setUser',
-      this.user.name,
-      this.user.language,
-      this.user.uuid
-    ).then();
+    Store.dispatch('User/setUser', this.user).then();
   }
 
   hasUser() {
