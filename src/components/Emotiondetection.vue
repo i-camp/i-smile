@@ -230,7 +230,7 @@
       },
 
       thresholdShot(val) {
-        if (0 < this.thresholdCount && this.percent(val) < THRESHOLD) {
+        if (this.thresholdCount <= 0 && this.percent(val) < THRESHOLD) {
           // 計測開始
           let dt = new Date();
           dt.setMilliseconds(dt.getMilliseconds() + 1000);
