@@ -230,14 +230,14 @@
       },
 
       thresholdShot(val) {
-        if (this.thresholdCount <= 0 && this.percent(val) < THRESHOLD) {
+        if (this.thresholdCount <= 0 || this.percent(val) < THRESHOLD) {
           // 計測開始
           let dt = new Date();
           dt.setMilliseconds(dt.getMilliseconds() + 1000);
-          this.thresholdCount = dt;
+          this.thresholdCount = dt.getTime();
         }
         // 1000ms経過していたらtrue
-        return (new Date(this.thresholdCount).getTime() <= new Date().getTime());
+        return this.thresholdCount <= new Date().getTime();
       },
 
       snapshot() {
