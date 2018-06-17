@@ -53,9 +53,6 @@
     created() {
       this.initGame();
       this.$store.subscribe((mutation, state) => {
-        if (state.Game === undefined) {
-          return;
-        }
 
         this.isStarted = (
           state.Game.startedAt !== undefined
