@@ -23,9 +23,9 @@ export default {
     initGame({ commit }) {
       let currentGamesRef = firebaseApp.database().ref(`/currentGames`);
       let gamesRef        = firebaseApp.database().ref(`/games`);
-      currentGamesRef.once('value').then(snapshot => {
+      return currentGamesRef.on('value', snapshot => {
         let currentId = snapshot.val();
-        gamesRef.on('value', snapshot => {
+        return gamesRef.on('value', snapshot => {
           let games = snapshot.val();
           for (let key in games) {
             if (currentId === games[key].id) {
