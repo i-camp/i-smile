@@ -80,7 +80,7 @@
         currentCamera: 0,
         videoSrouces: [],
         shoted: false,
-        thresholdCount: null,
+        thresholdCount: 0,
         progress: 0,
       }
     },
@@ -230,7 +230,7 @@
       },
 
       thresholdShot(val) {
-        if (this.thresholdCount === null || this.percent(val) < THRESHOLD) {
+        if (0 < this.thresholdCount && this.percent(val) < THRESHOLD) {
           // 計測開始
           let dt = new Date();
           dt.setMilliseconds(dt.getMilliseconds() + 1000);
