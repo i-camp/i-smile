@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="video-wrapper">
-      <canvas width="640" height="640" class="overlay" ref="overlay" v-show="!shot"></canvas>
+      <canvas width="640" height="640" class="overlay" ref="overlay" v-show="!shoted"></canvas>
       <canvas width="640" height="640" class="video" ref="video"></canvas>
       <video width="640" height="640" class="videoel" ref="videoel" preload="auto" loop playsinline autoplay></video>
     </div>
@@ -40,14 +40,15 @@
   import * as clmtrackr from 'clmtrackr'
   import emotionClassifier from '@/components/utils/emotionClassifier'
   import videoHelper from '@/components/utils/videoHelper'
+  import saveSnap from '@/components/utils/saveSnap'
   import pModel from '@/components/models/model_pca_20_svm'
   import emotionModel from '@/components/models/emotion'
-  import { mapState } from 'vuex'
   import firebaseApp from '@/utils/firebase'
   import * as uuidv4 from 'uuid/v4'
 
   const clm = clmtrackr.default;
   const TRIM_SIZE = 640;
+  const THRESHOLD = 80; // 笑顔シャッターの閾値
 
   navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
   window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
@@ -56,6 +57,7 @@
   export default {
     mixins: [
       videoHelper,
+      saveSnap,
     ],
     data() {
       return {
@@ -77,14 +79,10 @@
         ],
         currentCamera: 0,
         videoSrouces: [],
-        shot: false,
+        shoted: false,
+        thresholdCount: 0,
         progress: 0,
       }
-    },
-    computed: {
-      ...mapState('User', {
-        uuid: state => state.uuid,
-      })
     },
     mounted() {
       this.vid       = this.$refs.videoel;
@@ -229,6 +227,42 @@
 
       percent(val) {
         return Math.floor(val * 100);
+      },
+
+      thresholdShot(val) {
+        if (this.thresholdCount <= 0 || this.percent(val) < THRESHOLD) {
+          // 計測開始
+          let dt = new Date();
+          dt.setMilliseconds(dt.getMilliseconds() + 1000);
+          this.thresholdCount = dt.getTime();
+        }
+        // 1000ms経過していたらtrue
+        return this.thresholdCount <= new Date().getTime();
+      },
+
+      snapshot() {
+        if ('vibrate' in navigator) navigator.vibrate(100);
+
+        this.shoted = true;
+        this.deleteCamera();
+
+        let imagePath  = `photos/${uuidv4()}.jpg`;
+        let storageRef = firebaseApp
+          .storage()
+          .ref()
+          .child(imagePath);
+        let uploadTask = storageRef.putString(this.video.toDataURL('image/jpg'), 'data_url');
+        uploadTask.on('state_changed', snapshot => {
+          this.progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        });
+
+        uploadTask.then(snapshot => {
+          snapshot.ref.getDownloadURL().then(downloadURL => {
+            this.sendSnapEvent(this.$route.params.uuid, imagePath, downloadURL).then(() => {
+              this.$router.push('/');
+            });
+          });
+        });
       }
 
     },
@@ -240,30 +274,10 @@
         val.forEach(emotion => {
           if (
             emotion.emotion === 'happy'
-            && (this.percent(emotion.value) >= 90)
-            && !this.shot
+            && !this.shoted
+            && this.thresholdShot(emotion.value)
           ) {
-            if ('vibrate' in navigator) navigator.vibrate(100);
-
-            this.shot = true;
-            this.deleteCamera();
-
-            let imagePath  = `photos/${uuidv4()}.jpg`;
-            let storageRef = firebaseApp
-              .storage()
-              .ref()
-              .child(imagePath);
-            let uploadTask = storageRef.putString(this.video.toDataURL('image/jpg'), 'data_url');
-            uploadTask.on('state_changed', snapshot => {
-              this.progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            });
-
-            let url;
-            uploadTask.then(snapshot => {
-              snapshot.ref.getDownloadURL().then(downloadURL => {
-                // url = downloadURL;
-              });
-            });
+            this.snapshot();
           }
         }); 
       }
