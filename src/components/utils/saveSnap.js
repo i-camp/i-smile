@@ -3,12 +3,11 @@ import { mapState } from 'vuex'
 
 const saveSnap = {
   computed: {
-    ...mapState(['Game', 'User']),
+    ...mapState(['User']),
   },
   methods: {
     async sendSnapEvent(to, imagePath, url) {
-      let snapEventsRef = firebaseApp.database().ref(`snapEvents/${this.Game.id}`);
-      snapEventsRef.push({
+      firebaseApp.database().ref(`snapEvents`).push({
         photographerId: this.User.uuid,
         subjectId: to,
         photoUrl: url,
