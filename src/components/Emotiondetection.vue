@@ -77,8 +77,8 @@
         emotionParam: [
           {emotion: "happy", value: 0},
         ],
-        currentCamera: 0,
-        videoSrouces: [],
+        currentCamera: "environment",
+        videoSources: [],
         shoted: false,
         thresholdCount: 0,
         progress: 0,
@@ -105,20 +105,15 @@
       this.vid.addEventListener('canplay', this.startVideo, false);
 
       this.setCamera().then(() => {
-        this.defaultCamera();
         this.init();
       });
     },
     methods: {
       init() {
         let param = {video: {
-            mandatory: {
-              minWidth: "640",
-              minHeight: "480"
-            },
-            optional: [
-              {sourceId: this.videoSrouces[this.currentCamera].deviceId}
-            ]
+            width: { min: 360, ideal: 640, max: 1920 },
+            height: { min: 240, ideal: 480, max: 1080 },
+            facingMode: { ideal: this.currentCamera },
           }
         };
         // check for camerasupport
@@ -155,17 +150,19 @@
         }
       },
 
-      setCamera() {
-        return navigator.mediaDevices.enumerateDevices().then(sourcesInfo => {
-          // 取得できたカメラとマイクを含むデバイスからカメラだけをフィルターする
-          this.videoSrouces = sourcesInfo.filter(elem => {
-              return elem.kind === 'videoinput';
-          });
-        });
-      },
-
       gumSuccess(stream) {
         // add camera stream if getUserMedia succeeded
+        if (this.vid.srcObject !== undefined) {
+          this.vid.srcObject = stream
+        } else if (this.vid.mozSrcObject !== undefined) {
+          this.vid.mozSrcObject = stream
+        } else if (window.URL.createObjectURL) {
+          this.vid.src = window.URL.createObjectURL(stream)
+        } else if (window.webkitURL) {
+          this.vid.src = window.webkitURL.createObjectURL(stream)
+        } else {
+          this.vid.src = stream
+        }
         if ("srcObject" in this.vid) {
           this.vid.srcObject = stream;
         } else {
@@ -201,16 +198,24 @@
         alert("There was some problem trying to fetch video from your webcam. If you have a webcam, please make sure to accept when the browser asks for access to your webcam.");
       },
 
-      switchCamera() {
-        this.defaultCamera();
-        this.deleteCamera().then(this.init);
+      setCamera() {
+        return navigator.mediaDevices.enumerateDevices().then(sourcesInfo => {
+          // 取得できたカメラとマイクを含むデバイスからカメラだけをフィルターする
+          sourcesInfo.forEach(device => {
+            if (device.kind === 'videoinput') {
+              this.videoSources.push(device);
+            }
+          });
+        });
       },
 
-      defaultCamera() {
-        this.currentCamera++;
-        if (this.currentCamera >= this.videoSrouces.length) {
-          this.currentCamera = 0;
+      switchCamera() {
+        if (this.videoSources.length > 1 && this.currentCamera === "environment") {
+          this.currentCamera = "user";
+        } else {
+          this.currentCamera = "environment";
         }
+        this.deleteCamera().then(this.init);
       },
 
       deleteCamera() {
