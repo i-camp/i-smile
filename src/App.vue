@@ -8,12 +8,58 @@
           </v-btn>
         </transition>
         <v-toolbar-title>i-smile</v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-btn icon @click.native="dialog = true">
+          <v-icon>more_vert</v-icon>
+        </v-btn>
       </v-toolbar>
       <v-content v-if="onStart">
         <router-view></router-view>
       </v-content>
       <Preinitiation v-if="onPreinitiation"/>
       <End v-if="onEnd"/>
+
+      <v-dialog v-model="dialog" scrollable fullscreen hide-overlay transition="dialog-bottom-transition">
+        <v-card>
+          <v-toolbar dark color="primary">
+            <v-btn icon dark @click.native="dialog = false">
+              <v-icon>close</v-icon>
+            </v-btn>
+            <v-toolbar-title>Credit Title</v-toolbar-title>
+            <v-spacer></v-spacer>
+          </v-toolbar>
+          <v-list subheader>
+            <v-subheader>planner and supporter</v-subheader>
+            <v-list-tile v-for="credit in credits.planner" :key="credit.name" avatar>
+              <v-list-tile-avatar>
+                <img :src="credit.avatar">
+              </v-list-tile-avatar>
+              <v-list-tile-content>
+                <v-list-tile-title v-html="credit.name"></v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-subheader>creator</v-subheader>
+            <v-list-tile v-for="credit in credits.creator" :key="credit.name" avatar>
+              <v-list-tile-avatar>
+                <img :src="credit.avatar">
+              </v-list-tile-avatar>
+              <v-list-tile-content>
+                <v-list-tile-title v-html="credit.name"></v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-subheader>and...</v-subheader>
+            <v-list-tile avatar>
+              <v-list-tile-avatar>
+                <img src="img/1.png">
+              </v-list-tile-avatar>
+              <v-list-tile-content>
+                <v-list-tile-title v-html="getUser"></v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+          </v-list>
+        </v-card>
+      </v-dialog>
+
     </v-app>
   </div>
 </template>
@@ -30,7 +76,7 @@
 </style>
 
 <script>
-  import { mapActions, mapGetters } from 'vuex'
+  import { mapActions, mapGetters, mapState } from 'vuex'
   import Preinitiation from '@/components/Preinitiation.vue'
   import End from '@/components/End.vue'
 
@@ -48,6 +94,21 @@
         },
         isStarted: false,
         isEnded: false,
+        dialog: false,
+        credits: {
+          creator: [
+            {avatar: "img/1.png", name: "Takashi Tsukamoto"},
+            {avatar: "img/2.png", name: "Yasutaka Yamamoto"},
+            {avatar: "img/3.png", name: "Kenjiro Kubota"},
+            {avatar: "img/1.png", name: "Yukio Okashita"},
+          ],
+          planner: [
+            {avatar: "img/1.png", name: "Shoji ackey Yamamoto"},
+            {avatar: "img/2.png", name: "Yu Kusano"},
+            {avatar: "img/3.png", name: "Hitomi Koyashiki"},
+            {avatar: "img/1.png", name: "Daisuke Tanaka"},
+          ]
+        }
       }
     },
     created() {
@@ -75,6 +136,10 @@
       onEnd() {
         return this.isStarted && this.isEnded;
       },
+      getUser() {
+        return this.User.name !== null ? this.User.name : 'You';
+      },
+      ...mapState(['User']),
       ...mapGetters(['Game/currentGame']),
       displayableBack() {
         return (this.$route.name in this.backRoute);
