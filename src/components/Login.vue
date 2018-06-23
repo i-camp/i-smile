@@ -93,8 +93,9 @@
           this.name,
           country,
           uuidv4()
-        );
-        this.$router.push('/');
+        ).then(() => {
+          this.$router.push('/');
+        });
       },
     }
   }
