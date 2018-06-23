@@ -26,17 +26,20 @@ class User extends Storage {
   }
 
   setUser(name, language, uuid) {
-    this.setFirebase(name, uuid).then(() => {
-      let data = {
-        name: name,
-        language: language,
-        uuid: uuid,
-      }
-      let dt = new Date();
-      // 1day expier
-      this.setStorage(USER_KEY, data, dt.setDate(dt.getDate() + 1));
-      this.user = this.getStorage(USER_KEY);
-      this.mapState();
+    return new Promise((resolve) => {
+      this.setFirebase(name, uuid).then(() => {
+        let data = {
+          name: name,
+          language: language,
+          uuid: uuid,
+        }
+        let dt = new Date();
+        // 1day expier
+        this.setStorage(USER_KEY, data, dt.setDate(dt.getDate() + 1));
+        this.user = this.getStorage(USER_KEY);
+        this.mapState();
+        resolve(true);
+      });
     });
   }
 
