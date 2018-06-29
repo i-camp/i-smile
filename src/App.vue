@@ -128,13 +128,13 @@
     },
     computed: {
       onStart() {
-        return this.isStarted && !this.isEnded;
+        return true; //this.isStarted && !this.isEnded;
       },
       onPreinitiation() {
         return !this.isStarted && !this.isEnded;
       },
       onEnd() {
-        return this.isStarted && this.isEnded;
+        return false;
       },
       getUser() {
         return this.User.name !== null ? this.User.name : 'You';

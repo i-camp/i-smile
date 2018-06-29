@@ -2,7 +2,7 @@
   <div id="qrGenarate">
   <p>Generate QR code</p>
   <vue-q-art :config=config></vue-q-art>
-  {{ config.value = `emotion/`+uuid }}
+  {{ config.value = `https://techblog.istyle.co.jp/` }}
   </div>
 </template>
 
@@ -19,7 +19,7 @@
     return {
       config: {
         value: "",
-        imagePath: "/img/tukamoto.jpg",
+        imagePath: "/img/istyle.jpg",
         filter: "color"
       }
     };
