@@ -1,28 +1,25 @@
 <template>
   <div id="qrGenarate">
   <p>Generate QR code</p>
-  <vue-q-art :config=config></vue-q-art>
-  {{ config.value = `https://techblog.istyle.co.jp/` }}
+  <qrcode-vue :value="value" :size="size" level="H"></qrcode-vue>
+  {{ value = `https://example` }}
   </div>
 </template>
 
 <script>
-  import VueQArt from 'vue-qart'
+  import QrcodeVue from 'qrcode.vue';
   import { mapState } from 'vuex'
 
   export default {
   components: {
-    VueQArt
+    QrcodeVue
   },
   name: "qrGenarate",
   data() {
     return {
-      config: {
-        value: "",
-        imagePath: "/img/istyle.jpg",
-        filter: "color"
-      }
-    };
+      value: '',
+      size: 300
+    }
   },
   computed: {
     ...mapState('User', {
