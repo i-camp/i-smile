@@ -3,8 +3,10 @@ import Vuex from 'vuex'
 import Vuetify from 'vuetify'
 import Vuelidate from 'vuelidate'
 import VueRouter from 'vue-router'
-import VueRouterMiddleware from 'vue-router-middleware'
 import titleMixin from '@/title'
+import User from '@/user'
+
+User.init();
 
 // import vuetify style
 import 'vuetify/dist/vuetify.min.css'
@@ -29,7 +31,6 @@ Vue.use(Vuetify, {
 })
 Vue.use(Vuelidate)
 Vue.use(VueRouter)
-Vue.use(VueRouterMiddleware, { router });
 Vue.mixin(titleMixin)
 
 Vue.config.productionTip = false

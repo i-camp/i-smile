@@ -3,7 +3,7 @@
     <v-app>
       <v-toolbar dark color="primary">
         <transition name="slide-fade">
-          <v-btn icon @click="goToBack" v-if="displayableBack">
+          <v-btn icon @click="goRoute" v-if="displayableBack">
             <v-icon>arrow_back</v-icon>
           </v-btn>
         </transition>
@@ -16,6 +16,7 @@
       <v-content v-if="onStart">
         <router-view></router-view>
       </v-content>
+      <Login v-if="onLogin"/> 
       <Preinitiation v-if="onPreinitiation"/>
       <End v-if="onEnd"/>
 
@@ -77,20 +78,22 @@
 
 <script>
   import { mapActions, mapGetters, mapState } from 'vuex'
+  import Login from '@/components/Login'
   import Preinitiation from '@/components/Preinitiation.vue'
   import End from '@/components/End.vue'
 
   export default {
     components: {
+      Login,
       Preinitiation,
       End,
     },
     data() {
       return {
         backRoute: {
-          reading: true,
-          generate: true,
-          emotiondetection: true,
+          reading: "/",
+          generate: "/",
+          emotiondetection: "/reading",
         },
         isStarted: false,
         isEnded: false,
@@ -101,6 +104,7 @@
             {avatar: "img/2.png", name: "Yasutaka Yamamoto"},
             {avatar: "img/3.png", name: "Kenjiro Kubota"},
             {avatar: "img/1.png", name: "Yukio Okashita"},
+            {avatar: "img/2.png", name: "Keigo Nishine"},
           ],
           planner: [
             {avatar: "img/1.png", name: "Shoji ackey Yamamoto"},
@@ -127,17 +131,24 @@
       });
     },
     computed: {
+      onLogin() {
+        return this.User.name === "";
+      },
       onStart() {
-        return this.isStarted && !this.isEnded;
+        let start = this.isStarted && !this.isEnded && this.User.name !== "";
+        if (start) {
+          this.goRoute();
+        }
+        return start;
       },
       onPreinitiation() {
-        return !this.isStarted && !this.isEnded;
+        return !this.isStarted && !this.isEnded && this.User.name !== "";
       },
       onEnd() {
-        return this.isStarted && this.isEnded;
+        return this.isStarted && this.isEnded && this.User.name !== "";
       },
       getUser() {
-        return this.User.name !== null ? this.User.name : 'You';
+        return this.User.name !== "" ? this.User.name : "You";
       },
       ...mapState(['User']),
       ...mapGetters(['Game/currentGame']),
@@ -147,8 +158,13 @@
     },
     methods: {
       ...mapActions('Game', ['initGame']),
-      goToBack() {
-        this.$router.back();
+      goRoute($path = '/') {
+        for (let name in this.backRoute) {
+          if (this.$route.name === name) {
+            $path = this.backRoute[name];
+          }
+        }
+        this.$router.push($path);
       },
     },
   }
