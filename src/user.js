@@ -8,7 +8,6 @@ class User extends Storage {
   constructor() {
     super();
     this.user = this.getStorage(USER_KEY);
-    this.init();
   }
 
   init() {
@@ -25,12 +24,11 @@ class User extends Storage {
     return (this.user !== undefined)
   }
 
-  setUser(name, language, uuid) {
+  setUser(name, uuid) {
     return new Promise((resolve) => {
       this.setFirebase(name, uuid).then(() => {
         let data = {
           name: name,
-          language: language,
           uuid: uuid,
         }
         let dt = new Date();
