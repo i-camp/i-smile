@@ -12,8 +12,11 @@ import 'vuetify/dist/vuetify.min.css'
 // import submodule
 import Store from '@/store/index'
 import router from '@/routes'
+
 // import component
 import App from '@/App.vue'
+
+import './registerServiceWorker'
 
 Vue.use(Vuex)
 Vue.use(Vuetify, {

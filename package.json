@@ -11,6 +11,7 @@
     "clmtrackr": "^1.1.2",
     "d3": "^5.4.0",
     "firebase": "^5.0.4",
+    "register-service-worker": "^1.0.0",
     "uuid": "^3.2.1",
     "vue": "^2.5.16",
     "vue-qart": "^2.1.1",
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.0.0-beta.15",
     "@vue/cli-plugin-eslint": "^3.0.0-beta.15",
+    "@vue/cli-plugin-pwa": "^3.0.0-rc.3",
     "@vue/cli-service": "^3.0.0-beta.15",
     "vue-template-compiler": "^2.5.16"
   },
