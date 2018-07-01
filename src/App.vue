@@ -135,11 +135,7 @@
         return this.User.name === "";
       },
       onStart() {
-        let start = this.isStarted && !this.isEnded && this.User.name !== "";
-        if (start) {
-          this.goRoute();
-        }
-        return start;
+        return this.isStarted && !this.isEnded && this.User.name !== "";
       },
       onPreinitiation() {
         return !this.isStarted && !this.isEnded && this.User.name !== "";
