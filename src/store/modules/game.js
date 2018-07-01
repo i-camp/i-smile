@@ -22,7 +22,7 @@ export default {
       let currentGamesRef = firebaseApp.database().ref(`/currentGame`);
       return currentGamesRef.on('value', snapshot => {
         let game = snapshot.val();
-          if (game !== undefined) {
+          if (game !== null) {
             let payload = {
               startedAt: game.startedAt,
               finishedAt: game.finishedAt,
