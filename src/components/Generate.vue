@@ -1,8 +1,8 @@
 <template>
   <div id="qrGenarate">
   <p>Generate QR code</p>
-  <qrcode-vue :value="value" :size="size" level="H"></qrcode-vue>
-  {{ value = uuid }}
+  <qrcode-vue :value="value" :size="size" level="M"></qrcode-vue>
+  {{ this.uuid }}
   </div>
 </template>
 
@@ -14,9 +14,12 @@
       QrcodeVue
     },
     name: "qrGenarate",
+    created() {
+      this.value = this.uuid
+    },
     data() {
       return {
-        value: '',
+        value: this.uuid,
         size: 260
       }
     },
