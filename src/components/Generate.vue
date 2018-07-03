@@ -1,35 +1,29 @@
 <template>
   <div id="qrGenarate">
   <p>Generate QR code</p>
-  <vue-q-art :config=config></vue-q-art>
-  {{ config.value = `emotion/`+uuid }}
+  <qrcode-vue :value="value" :size="size" level="M"></qrcode-vue>
   </div>
 </template>
 
 <script>
-  import VueQArt from 'vue-qart'
+  import QrcodeVue from 'qrcode.vue';
   import { mapState } from 'vuex'
-
   export default {
-  components: {
-    VueQArt
-  },
-  name: "qrGenarate",
-  data() {
-    return {
-      config: {
-        value: "",
-        imagePath: "/img/tukamoto.jpg",
-        filter: "color"
+    components: {
+      QrcodeVue
+    },
+    name: "qrGenarate",
+    data() {
+      return {
+        size: 260
       }
-    };
-  },
-  computed: {
-    ...mapState('User', {
-      uuid: state => state.uuid,
-    })
-  },
-};
+    },
+    computed: {
+      ...mapState('User', {
+        value: state => state.uuid,
+      })
+    },
+  };
 </script>
 
 <style>

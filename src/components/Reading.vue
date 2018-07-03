@@ -47,7 +47,7 @@
       },
       onDecode(content){
         this.paused = true
-        this.$router.push(content)
+        this.$router.push('emotion/' + content)
       }
     }
   }
