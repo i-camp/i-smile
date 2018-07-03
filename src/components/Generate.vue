@@ -13,18 +13,14 @@
       QrcodeVue
     },
     name: "qrGenarate",
-    created() {
-      this.value = this.uuid
-    },
     data() {
       return {
-        value: this.uuid,
         size: 260
       }
     },
     computed: {
       ...mapState('User', {
-        uuid: state => state.uuid,
+        value: state => state.uuid,
       })
     },
   };
