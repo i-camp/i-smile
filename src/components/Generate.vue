@@ -2,7 +2,6 @@
   <div id="qrGenarate">
   <p>Generate QR code</p>
   <qrcode-vue :value="value" :size="size" level="M"></qrcode-vue>
-  {{ this.uuid }}
   </div>
 </template>
 
