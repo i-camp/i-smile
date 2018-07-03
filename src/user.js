@@ -18,6 +18,7 @@ class User extends Storage {
 
   mapState() {
     Store.dispatch('User/setUser', this.user).then();
+    Store.dispatch('Shots/initShots', this.user).then();
   }
 
   hasUser() {
