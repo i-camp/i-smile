@@ -1,14 +1,14 @@
 language: node_js
 branches:
   only:
-  - feature-fix-travis
+  - master
 node_js:
   - '8'
 cache: yarn
 install:
   - yarn install
 script:
-  - yarn run build --mode=development
+  - yarn run build --mode=production
 after_success:
   - yarn run deploy -- --token $FIREBASE_TOKEN
 
