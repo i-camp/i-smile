@@ -7,4 +7,9 @@ node_js:
 cache: yarn
 install:
   - yarn install
+script:
+  - yarn run build --mode=production
+after_success:
+  - yarn run deploy -- --token $FIREBASE_TOKEN
+
 
