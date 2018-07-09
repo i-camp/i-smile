@@ -17,6 +17,7 @@
 <script>
   import { QrcodeReader } from 'vue-qrcode-reader'
   import { mapActions } from 'vuex'
+  import { mapState } from 'vuex'
 
   export default {
     components: { QrcodeReader },
@@ -63,12 +64,21 @@
       },
       onDecode(content){
         this.paused = true;
+        if (this.uuid === content) {
+          this.dialog = true;
+          return;
+        } 
         this.hasShot(content).then(() => {
           this.$router.push('emotion/' + content);
         }).catch(() => {
           this.dialog = true;
         });
       }
+    },
+    computed: {
+      ...mapState('User', {
+        uuid: state => state.uuid,
+      })
     }
   }
 </script>
