@@ -1,3 +1,5 @@
+const TRIM_SIZE = 640;
+
 const videoHelper = {
   created() {
     window.requestAnimFrame = this.requestAnimFrame();
@@ -22,23 +24,19 @@ const videoHelper = {
         window.msCancelRequestAnimationFrame ||
         window.clearTimeout;
     },
-    supportsVideo() {
-      return !!document.createElement('video').canPlayType;
-    },
-    supportsH264BaseLineVideo() {
-      if (!this.supportsVideo()) {
-        return false;
+    videoClip() {
+      if (this.vid.videoWidth > this.vid.videoHeight) {
+        this.vh = TRIM_SIZE;
+        this.vw = this.vid.videoWidth * (TRIM_SIZE / this.vid.videoHeight);
+        this.vx = -(this.vw - TRIM_SIZE) / 2;
+        this.vy = 0;
+      } else {
+        this.vw = TRIM_SIZE;
+        this.vh = this.vid.videoHeight * (TRIM_SIZE / this.vid.videoWidth);
+        this.vx = -(this.vh - TRIM_SIZE) / 2;
+        this.vx = 0;
       }
-      let v = document.createElement("video");
-      return v.canPlayType('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
     },
-    supportsWebMVideo() {
-      if (!this.supportsVideo()) {
-        return false;
-      }
-      let v = document.createElement("video");
-      return v.canPlayType('video/webm; codecs="vp8"');
-    }
   }
 };
 export default videoHelper;

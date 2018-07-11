@@ -6,8 +6,12 @@
       <video width="640" height="640" class="videoel" ref="videoel" preload="auto" loop playsinline autoplay></video>
     </div>
     <button @click="switchCamera">switch camea</button>
-    <p>{{ emotionParam[0].emotion }}</p>
-    <p>{{ percent(emotionParam[0].value) }}</p>
+    <v-progress-linear
+      v-if="!shoted"
+      height="20"
+      v-model="smileVoltage"
+    ></v-progress-linear>
+    <Upload v-if="shoted" :video="video"/>
   </div>
 </template>
 
@@ -38,26 +42,25 @@
 
 <script>
   import * as clmtrackr from 'clmtrackr'
+  import Upload from '@/components/Upload.vue'
   import emotionClassifier from '@/components/utils/emotionClassifier'
   import videoHelper from '@/components/utils/videoHelper'
-  import saveSnap from '@/components/utils/saveSnap'
   import pModel from '@/components/models/model_pca_20_svm'
   import emotionModel from '@/components/models/emotion'
-  import firebaseApp from '@/utils/firebase'
-  import * as uuidv4 from 'uuid/v4'
 
   const clm = clmtrackr.default;
-  const TRIM_SIZE = 640;
-  const THRESHOLD = 80; // 笑顔シャッターの閾値
+  const THRESHOLD      = 60; // 笑顔シャッターの閾値
+  const THRESHOLD_TIME = 500; // 笑顔判定の閾値持続時間
 
   navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
   window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
-  navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
-
+  
   export default {
+    components: {
+      Upload
+    },
     mixins: [
       videoHelper,
-      saveSnap,
     ],
     data() {
       return {
@@ -81,7 +84,7 @@
         videoSources: [],
         shoted: false,
         thresholdCount: 0,
-        progress: 0,
+        smileVoltage: 0,
       }
     },
     mounted() {
@@ -180,20 +183,6 @@
         }
       },
 
-      videoClip() {
-        if (this.vid.videoWidth > this.vid.videoHeight) {
-          this.vh = TRIM_SIZE;
-          this.vw = this.vid.videoWidth * (TRIM_SIZE / this.vid.videoHeight);
-          this.vx = -(this.vw - TRIM_SIZE) / 2;
-          this.vy = 0;
-        } else {
-          this.vw = TRIM_SIZE;
-          this.vh = this.vid.videoHeight * (TRIM_SIZE / this.vid.videoWidth);
-          this.vx = -(this.vh - TRIM_SIZE) / 2;
-          this.vx = 0;
-        }
-      },
-
       gumFail() {
         alert("There was some problem trying to fetch video from your webcam. If you have a webcam, please make sure to accept when the browser asks for access to your webcam.");
       },
@@ -230,44 +219,20 @@
         });   
       },
 
-      percent(val) {
-        return Math.floor(val * 100);
-      },
-
       thresholdShot(val) {
-        if (this.thresholdCount <= 0 || this.percent(val) < THRESHOLD) {
+        if (this.thresholdCount <= 0 || val < THRESHOLD) {
           // 計測開始
           let dt = new Date();
-          dt.setMilliseconds(dt.getMilliseconds() + 1000);
+          dt.setMilliseconds(dt.getMilliseconds() + THRESHOLD_TIME);
           this.thresholdCount = dt.getTime();
         }
-        // 1000ms経過していたらtrue
+        // THRESHOLD_TIMEms経過していたらtrue
         return this.thresholdCount <= new Date().getTime();
       },
 
       snapshot() {
-        if ('vibrate' in navigator) navigator.vibrate(100);
-
-        this.shoted = true;
         this.deleteCamera();
-
-        let imagePath  = `photos/${uuidv4()}.jpg`;
-        let storageRef = firebaseApp
-          .storage()
-          .ref()
-          .child(imagePath);
-        let uploadTask = storageRef.putString(this.video.toDataURL('image/jpg'), 'data_url');
-        uploadTask.on('state_changed', snapshot => {
-          this.progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        });
-
-        uploadTask.then(snapshot => {
-          snapshot.ref.getDownloadURL().then(downloadURL => {
-            this.sendSnapEvent(this.$route.params.uuid, imagePath, downloadURL).then(() => {
-              this.$router.push('/');
-            });
-          });
-        });
+        this.shoted = true;
       }
 
     },
@@ -276,15 +241,14 @@
     },
     watch: {
       emotionParam(val) {
-        val.forEach(emotion => {
-          if (
-            emotion.emotion === 'happy'
-            && !this.shoted
-            && this.thresholdShot(emotion.value)
-          ) {
-            this.snapshot();
-          }
-        }); 
+        let emotionParam  = Math.floor(val[0].value * 100);
+        this.smileVoltage = Math.floor((emotionParam / THRESHOLD) * 100);
+        if (
+          !this.shoted
+          && this.thresholdShot(emotionParam)
+        ) {
+          this.snapshot();
+        }
       }
     }
   }
