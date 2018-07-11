@@ -29,6 +29,7 @@
             <v-toolbar-title>Credit Title</v-toolbar-title>
             <v-spacer></v-spacer>
           </v-toolbar>
+          <v-card-text style="height: 100vh">
           <v-list subheader>
             <v-subheader>planner and supporter</v-subheader>
             <v-list-tile v-for="credit in credits.planner" :key="credit.name" avatar>
@@ -51,13 +52,14 @@
             <v-subheader>and...</v-subheader>
             <v-list-tile avatar>
               <v-list-tile-avatar>
-                <img src="img/1.png">
+                <img src="img/avatar/you.jpg">
               </v-list-tile-avatar>
               <v-list-tile-content>
                 <v-list-tile-title v-html="getUser"></v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
           </v-list>
+          </v-card-text>
         </v-card>
       </v-dialog>
 
@@ -100,17 +102,17 @@
         dialog: false,
         credits: {
           creator: [
-            {avatar: "img/1.png", name: "Takashi Tsukamoto"},
-            {avatar: "img/2.png", name: "Yasutaka Yamamoto"},
-            {avatar: "img/3.png", name: "Kenjiro Kubota"},
-            {avatar: "img/1.png", name: "Yukio Okashita"},
-            {avatar: "img/2.png", name: "Keigo Nishine"},
+            {avatar: "img/avatar/tsukamotota.jpg", name: "Takashi Tsukamoto"},
+            {avatar: "img/avatar/yamamotoya.jpg", name: "Yasutaka Yamamoto"},
+            {avatar: "img/avatar/kubotak.jpg", name: "Kenjiro Kubota"},
+            {avatar: "img/avatar/okashitay.jpg", name: "Yukio Okashita"},
+            {avatar: "img/avatar/nishinek.jpg", name: "Keigo Nishine"},
           ],
           planner: [
-            {avatar: "img/1.png", name: "Shoji ackey Yamamoto"},
-            {avatar: "img/2.png", name: "Yu Kusano"},
-            {avatar: "img/3.png", name: "Hitomi Koyashiki"},
-            {avatar: "img/1.png", name: "Daisuke Tanaka"},
+            {avatar: "img/avatar/yamamotos.jpg", name: "Shoji ackey Yamamoto"},
+            {avatar: "img/avatar/kusanoy.jpg", name: "Yu Kusano"},
+            {avatar: "img/avatar/koyashikih.jpg", name: "Hitomi Koyashiki"},
+            {avatar: "img/avatar/tanakad.jpg", name: "Daisuke Tanaka"},
           ]
         }
       }
