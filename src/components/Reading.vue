@@ -4,7 +4,7 @@
     <v-dialog v-model="dialog" persistent max-width="290">
       <v-card>
         <v-card-title class="headline">Attention</v-card-title>
-        <v-card-text>Already has shot photo.</v-card-text>
+        <v-card-text>{{ message }}</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="green darken-1" flat @click="backTop">Back</v-btn>
@@ -17,6 +17,7 @@
 <script>
   import { QrcodeReader } from 'vue-qrcode-reader'
   import { mapActions } from 'vuex'
+  import { mapState } from 'vuex'
 
   export default {
     components: { QrcodeReader },
@@ -63,12 +64,23 @@
       },
       onDecode(content){
         this.paused = true;
+        if (this.uuid === content) {
+          this.message = "Your QR-Code.";
+          this.dialog = true;
+          return;
+        } 
         this.hasShot(content).then(() => {
           this.$router.push('emotion/' + content);
         }).catch(() => {
+          this.message = "Already has shot photo.";
           this.dialog = true;
         });
       }
+    },
+    computed: {
+      ...mapState('User', {
+        uuid: state => state.uuid,
+      })
     }
   }
 </script>
