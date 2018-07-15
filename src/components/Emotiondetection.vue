@@ -36,6 +36,7 @@
     ],
     data() {
       return {
+        cancelId: null,
         vid: null,
         vw: 0,
         vh: 0,
@@ -112,7 +113,7 @@
       drawLoop() {
         this.videoCC.drawImage(this.vid, this.vx, this.vy, this.vw, this.vh);
 
-        window.requestAnimFrame(this.drawLoop);
+        this.cancelId = window.requestAnimationFrame(this.drawLoop);
 
         this.overlayCC.clearRect(0, 0, this.vw, this.vh);
         if (this.ctrack.getCurrentPosition()) {
@@ -210,6 +211,7 @@
     },
     beforeDestroy() {
       this.deleteCamera();
+      if (this.cancelId !== null) window.cancelAnimationFrame(this.cancelId)
     },
     watch: {
       emotionParam(val) {
@@ -226,7 +228,7 @@
   }
 </script>
 
-<style>
+<style scoped>
 .video-wrapper {
   width: 100vw;
   height: auto;
@@ -235,7 +237,6 @@
   display: none;
 }
 .overlay, .video {
-  position: abusolute;
   width: 100vw;
   height: auto;
   top: auto;

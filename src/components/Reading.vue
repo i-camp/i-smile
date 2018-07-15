@@ -1,5 +1,8 @@
 <template>
   <div class="video-wrapper">
+    <div class="scan-area">
+      <div class="scan-image"></div>
+    </div>
     <canvas width="640" height="640" class="video" ref="videoCanvas"></canvas>
     <QrcodeReader
       ref="qr"
@@ -7,6 +10,11 @@
       @init="onInit"
       @decode="onDecode"
     />
+    <v-layout row wrap align-center justify-center>
+      <v-flex xs12 class="video-bottom">
+        <p class="display-1">Reading...</p>
+      </v-flex>
+    </v-layout>
     <v-dialog v-model="dialog" persistent max-width="290">
       <v-card>
         <v-card-title class="headline">Attention</v-card-title>
@@ -31,6 +39,7 @@
     name: "qrReader",
     data () {
       return {
+        cancelId: null,
         paused: false,
         dialog: false,
         vid: null,
@@ -49,9 +58,11 @@
     },
     mounted() {
       this.$refs.qr.$refs.canvas.remove()
+      this.$refs.qr.$el.children.item(1).remove()
       this.videoCC = this.$refs.videoCanvas.getContext('2d')
       this.onInit().then(() => {
         this.vid = this.$refs.qr.$refs.video
+        
         this.vid.addEventListener('canplay', () => {
           this.videoClip()
           this.drawLoop()
@@ -65,8 +76,7 @@
       },
       drawLoop() {
         this.videoCC.drawImage(this.vid, this.vx, this.vy, this.vw, this.vh);
-
-        window.requestAnimFrame(this.drawLoop);
+        this.cancelId = window.requestAnimationFrame(this.drawLoop);
       },
       async onInit(promise) {
         // show loading indicator
@@ -127,6 +137,7 @@
     },
     beforeDestroy() {
       this.deleteCamera();
+      if (this.cancelId !== null) window.cancelAnimationFrame(this.cancelId)
     },
   }
 </script>
@@ -140,8 +151,18 @@
   width: 100vw;
   height: auto;
 }
+.scan-area {
+  position: absolute;
+  z-index: 1;
+  top: auto;
+  left: auto;
+  bottom: auto;
+  right: auto;
+  width: 100vw;
+  height: 100vw;
+  padding: 40px;
+}
 .video {
-  position: abusolute;
   width: 100vw;
   height: auto;
   top: auto;
@@ -149,7 +170,15 @@
   bottom: auto;
   right: auto;
 }
-.video {
-  z-index: 1;
+.scan-image {
+  width: 100%;
+  height: 100%;
+  background: url('/img/frame.png') no-repeat center;
+  background-size: cover;
+}
+.video-bottom {
+  color: #716658;
+  text-align: center;
+  padding-top: 50px;
 }
 </style>
