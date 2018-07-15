@@ -15,31 +15,6 @@
   </div>
 </template>
 
-<style>
-.video-wrapper {
-  width: 100vw;
-  height: auto;
-}
-.videoel {
-  display: none;
-}
-.overlay, .video {
-  position: abusolute;
-  width: 100vw;
-  height: auto;
-  top: auto;
-  left: auto;
-  bottom: auto;
-  right: auto;
-}
-.video {
-  z-index: 1;
-}
-.overlay {
-  z-index: 2;
-}
-</style>
-
 <script>
   import * as clmtrackr from 'clmtrackr'
   import Upload from '@/components/Upload.vue'
@@ -51,9 +26,6 @@
   const clm = clmtrackr.default;
   const THRESHOLD      = 60; // 笑顔シャッターの閾値
   const THRESHOLD_TIME = 500; // 笑顔判定の閾値持続時間
-
-  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-  window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
   
   export default {
     components: {
@@ -253,3 +225,28 @@
     }
   }
 </script>
+
+<style>
+.video-wrapper {
+  width: 100vw;
+  height: auto;
+}
+.videoel {
+  display: none;
+}
+.overlay, .video {
+  position: abusolute;
+  width: 100vw;
+  height: auto;
+  top: auto;
+  left: auto;
+  bottom: auto;
+  right: auto;
+}
+.video {
+  z-index: 1;
+}
+.overlay {
+  z-index: 2;
+}
+</style>

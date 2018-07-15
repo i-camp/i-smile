@@ -6,6 +6,9 @@ import VueRouter from 'vue-router'
 import titleMixin from '@/title'
 import User from '@/user'
 
+navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
+
 User.init();
 
 // import vuetify style

@@ -1,6 +1,12 @@
 <template>
-  <div class="qrReader">
-    <qrcode-reader :paused="paused" @init="onInit" @decode="onDecode"></qrcode-reader>
+  <div class="video-wrapper">
+    <canvas width="640" height="640" class="video" ref="videoCanvas"></canvas>
+    <QrcodeReader
+      ref="qr"
+      :paused="paused"
+      @init="onInit"
+      @decode="onDecode"
+    />
     <v-dialog v-model="dialog" persistent max-width="290">
       <v-card>
         <v-card-title class="headline">Attention</v-card-title>
@@ -16,24 +22,53 @@
 
 <script>
   import { QrcodeReader } from 'vue-qrcode-reader'
-  import { mapActions } from 'vuex'
-  import { mapState } from 'vuex'
+  import { mapActions, mapState } from 'vuex'
+  import videoHelper from '@/components/utils/videoHelper'
 
   export default {
+    mixins: [ videoHelper ],
     components: { QrcodeReader },
     name: "qrReader",
     data () {
       return {
         paused: false,
         dialog: false,
+        vid: null,
+        videoCC: null,
+        vw: 0,
+        vh: 0,
+        vx: 0,
+        vy: 0,
+        message: ''
       }
+    },
+    computed: {
+      ...mapState('User', {
+        uuid: state => state.uuid,
+      })
+    },
+    mounted() {
+      this.$refs.qr.$refs.canvas.remove()
+      this.videoCC = this.$refs.videoCanvas.getContext('2d')
+      this.onInit().then(() => {
+        this.vid = this.$refs.qr.$refs.video
+        this.vid.addEventListener('canplay', () => {
+          this.videoClip()
+          this.drawLoop()
+        })
+      })
     },
     methods: {
       ...mapActions('Shots', ['hasShot']),
       backTop() {
         this.$router.push('/')
       },
-      async onInit (promise) {
+      drawLoop() {
+        this.videoCC.drawImage(this.vid, this.vx, this.vy, this.vw, this.vh);
+
+        window.requestAnimFrame(this.drawLoop);
+      },
+      async onInit(promise) {
         // show loading indicator
         try {
           await promise
@@ -62,6 +97,7 @@
           // hide loading indicator
         }
       },
+
       onDecode(content){
         this.paused = true;
         if (this.uuid === content) {
@@ -75,14 +111,45 @@
           this.message = "Already has shot photo.";
           this.dialog = true;
         });
-      }
+      },
+
+      deleteCamera() {
+        return new Promise(resolve => {
+          if (this.vid.srcObject) {
+            this.vid.srcObject.getVideoTracks().forEach(devise => {
+              devise.stop();
+            });
+            this.vid.srcObject = null;
+            resolve();
+          }
+        });   
+      },
     },
-    computed: {
-      ...mapState('User', {
-        uuid: state => state.uuid,
-      })
-    }
+    beforeDestroy() {
+      this.deleteCamera();
+    },
   }
 </script>
 
-
+<style>
+.qrcode-reader__camera,
+.qrcode-reader__overlay {
+  display: none;
+}
+.video-wrapper {
+  width: 100vw;
+  height: auto;
+}
+.video {
+  position: abusolute;
+  width: 100vw;
+  height: auto;
+  top: auto;
+  left: auto;
+  bottom: auto;
+  right: auto;
+}
+.video {
+  z-index: 1;
+}
+</style>
