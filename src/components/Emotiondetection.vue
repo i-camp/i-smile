@@ -15,31 +15,6 @@
   </div>
 </template>
 
-<style>
-.video-wrapper {
-  width: 100vw;
-  height: auto;
-}
-.videoel {
-  display: none;
-}
-.overlay, .video {
-  position: abusolute;
-  width: 100vw;
-  height: auto;
-  top: auto;
-  left: auto;
-  bottom: auto;
-  right: auto;
-}
-.video {
-  z-index: 1;
-}
-.overlay {
-  z-index: 2;
-}
-</style>
-
 <script>
   import * as clmtrackr from 'clmtrackr'
   import Upload from '@/components/Upload.vue'
@@ -51,9 +26,6 @@
   const clm = clmtrackr.default;
   const THRESHOLD      = 60; // 笑顔シャッターの閾値
   const THRESHOLD_TIME = 500; // 笑顔判定の閾値持続時間
-
-  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-  window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
   
   export default {
     components: {
@@ -64,6 +36,7 @@
     ],
     data() {
       return {
+        cancelId: null,
         vid: null,
         vw: 0,
         vh: 0,
@@ -140,7 +113,7 @@
       drawLoop() {
         this.videoCC.drawImage(this.vid, this.vx, this.vy, this.vw, this.vh);
 
-        window.requestAnimFrame(this.drawLoop);
+        this.cancelId = window.requestAnimationFrame(this.drawLoop);
 
         this.overlayCC.clearRect(0, 0, this.vw, this.vh);
         if (this.ctrack.getCurrentPosition()) {
@@ -238,6 +211,7 @@
     },
     beforeDestroy() {
       this.deleteCamera();
+      if (this.cancelId !== null) window.cancelAnimationFrame(this.cancelId)
     },
     watch: {
       emotionParam(val) {
@@ -253,3 +227,27 @@
     }
   }
 </script>
+
+<style scoped>
+.video-wrapper {
+  width: 100vw;
+  height: auto;
+}
+.videoel {
+  display: none;
+}
+.overlay, .video {
+  width: 100vw;
+  height: auto;
+  top: auto;
+  left: auto;
+  bottom: auto;
+  right: auto;
+}
+.video {
+  z-index: 1;
+}
+.overlay {
+  z-index: 2;
+}
+</style>
