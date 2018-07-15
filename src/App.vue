@@ -1,15 +1,18 @@
 <template>
   <div>
     <v-app>
-      <v-toolbar dark color="primary">
+      <v-toolbar :color="headerColor">
         <transition name="slide-fade">
           <v-btn icon @click="goRoute" v-if="displayableBack">
             <v-icon>arrow_back</v-icon>
           </v-btn>
         </transition>
-        <v-toolbar-title>i-smile</v-toolbar-title>
+        <v-toolbar-title>ya-smile</v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-btn icon @click.native="dialog = true">
+        <v-btn
+          icon
+          v-if="!displayableBack"
+          @click.native="dialog = true">
           <v-icon>more_vert</v-icon>
         </v-btn>
       </v-toolbar>
@@ -22,8 +25,8 @@
 
       <v-dialog v-model="dialog" scrollable fullscreen hide-overlay transition="dialog-bottom-transition">
         <v-card>
-          <v-toolbar dark color="primary">
-            <v-btn icon dark @click.native="dialog = false">
+          <v-toolbar color="white">
+            <v-btn icon @click.native="dialog = false">
               <v-icon>close</v-icon>
             </v-btn>
             <v-toolbar-title>Credit Title</v-toolbar-title>
@@ -97,6 +100,12 @@
           generate: "/",
           emotiondetection: "/reading",
         },
+        headerColors: {
+          start: 'white',
+          reading: 'pink lighten-2',
+          generate: 'light-blue lighten-3',
+          emotiondetection: 'pink lighten-2',
+        },
         isStarted: false,
         isEnded: false,
         dialog: false,
@@ -152,6 +161,9 @@
       ...mapGetters(['Game/currentGame']),
       displayableBack() {
         return (this.$route.name in this.backRoute);
+      },
+      headerColor() {
+        return this.headerColors[this.$route.name];
       },
     },
     methods: {
