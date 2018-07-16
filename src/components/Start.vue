@@ -1,5 +1,5 @@
 <template>
-  <v-container grid-list-md text-xs-center fluid fill-height>
+  <v-container class="start--container" grid-list-md text-xs-center fluid fill-height>
     <v-layout row wrap align-center justify-center>
       
       <v-flex xs6 @click="goToGenerate" v-bind:class="{ generate: generate }">
@@ -68,6 +68,10 @@
 </script>
 
 <style scoped>
+.start--container {
+  background: url("/img/yasmile_03.jpg") no-repeat center;
+  background-size: cover;
+}
 .reading, .generate {
   animation: down 100ms ease 0ms 1 normal none running;
 }
