@@ -1,9 +1,11 @@
 <template>
-  <v-container fluid fill-height>
-    <v-layout row wrap align-center justify-center>
-      <v-flex xs10>
+  <v-container class="login--container" fluid fill-height>
+    <v-layout row wrap align-end justify-center>
+      <v-flex xs12>
         <form>
           <v-text-field
+            class="input--name"
+            dark
             v-model="name"
             :error-messages="nameErrors"
             :counter="10"
@@ -13,23 +15,18 @@
             @blur="$v.name.$touch()"
           ></v-text-field>
 
-          <v-layout>
-            <v-spacer></v-spacer>
-            <v-btn color="accent" @click="submit">start</v-btn>
+          <v-layout justify-center>
+            <v-btn
+              dark
+              color="brown darken-2"
+              @click="submit"
+            >join</v-btn>
           </v-layout>
         </form>
       </v-flex>
     </v-layout>
   </v-container>
 </template>
-
-<style scoped>
-  .container {
-    background: url("/img/cover.jpg") no-repeat center;
-    background-size: cover;
-  }
-</style>
-
 
 <script>
   import { validationMixin } from 'vuelidate'
@@ -71,3 +68,20 @@
     }
   }
 </script>
+
+<style>
+.login--container {
+  background: url("/img/yasmile_01.jpg") no-repeat center;
+  background-size: cover;
+}
+.input--name {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  border-radius: 5px;
+}
+.input--name label {
+  position: absolute;
+  top: 18px;
+  left: 20px;
+}
+</style>
