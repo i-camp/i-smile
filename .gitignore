@@ -21,6 +21,3 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw*
-
-# 一通りのライブラリ導入が済むまでlockしないでおく
-yarn.lock

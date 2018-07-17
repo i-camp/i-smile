@@ -17,6 +17,7 @@
     "vue": "^2.5.16",
     "vue-qrcode-reader": "0.7.1",
     "vue-router": "^3.0.1",
+    "vue-silentbox": "^0.1.2",
     "vuelidate": "^0.7.4",
     "vuetify": "^1.0.19",
     "vuex": "^3.0.1"
@@ -26,6 +27,8 @@
     "@vue/cli-plugin-eslint": "^3.0.0-beta.15",
     "@vue/cli-plugin-pwa": "^3.0.0-rc.3",
     "@vue/cli-service": "^3.0.0-beta.15",
+    "node-sass": "^4.9.2",
+    "sass-loader": "^7.0.3",
     "vue-template-compiler": "^2.5.16"
   },
   "eslintConfig": {
