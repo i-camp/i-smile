@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import Vuetify from 'vuetify'
 import Vuelidate from 'vuelidate'
 import VueRouter from 'vue-router'
+import VueSilentbox from 'vue-silentbox'
 import titleMixin from '@/title'
 import User from '@/user'
 
@@ -37,6 +38,7 @@ Vue.use(Vuetify, {
 })
 Vue.use(Vuelidate)
 Vue.use(VueRouter)
+Vue.use(VueSilentbox)
 Vue.mixin(titleMixin)
 
 Vue.config.productionTip = false
