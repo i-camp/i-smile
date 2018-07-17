@@ -234,6 +234,7 @@
 
     },
     beforeDestroy() {
+      this.ctrack.stop();
       this.deleteCamera().then(() => {
         if (this.cancelId !== null) window.cancelAnimationFrame(this.cancelId)
       });
