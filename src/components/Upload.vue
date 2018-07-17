@@ -1,10 +1,21 @@
 <template>
   <div>
-    <v-progress-linear
-      color="secondary"
-      height="20"
-      v-model="progress"
-    ></v-progress-linear>
+    <div v-if="!uploaded">
+      <p class="headline text-xs-center">Uploading</p>
+      <v-progress-linear
+        color="secondary"
+        height="30"
+        v-model="progress"
+      ></v-progress-linear>
+    </div>
+    <v-layout v-if="uploaded" justify-center>
+      <v-btn
+        dark
+        large
+        color="brown darken-2"
+        @click="back"
+      >Back</v-btn>
+    </v-layout>
   </div>
 </template>
 
@@ -26,6 +37,7 @@
     data() {
       return {
         progress: 0,
+        uploaded: false,
       }
     },
     mounted() {
@@ -46,10 +58,14 @@
         uploadTask.then(snapshot => {
           snapshot.ref.getDownloadURL().then(downloadURL => {
             this.sendSnapEvent(this.$route.params.uuid, imagePath, downloadURL).then(() => {
-              this.$router.push('/');
+              this.uploaded = true;
+              this.$forceUpdate();
             });
           });
         });
+      },
+      back() {
+        this.$router.push('/');
       }
     }
   };
