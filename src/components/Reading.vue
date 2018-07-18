@@ -1,5 +1,5 @@
 <template>
-  <div class="video-wrapper">
+  <div class="video-wrapper reading">
     <div class="scan-area">
       <div class="scan-image"></div>
     </div>
@@ -126,59 +126,62 @@
       deleteCamera() {
         return new Promise(resolve => {
           if (this.vid.srcObject) {
-            this.vid.srcObject.getVideoTracks().forEach(devise => {
-              devise.stop();
+            this.vid.srcObject.getVideoTracks().forEach(device => {
+              device.stop();
             });
             this.vid.srcObject = null;
-            resolve();
           }
+          resolve(true);
         });   
       },
     },
     beforeDestroy() {
-      this.deleteCamera();
-      if (this.cancelId !== null) window.cancelAnimationFrame(this.cancelId)
+      this.deleteCamera().then(() => {
+        if (this.cancelId !== null) window.cancelAnimationFrame(this.cancelId)
+      });
     },
   }
 </script>
 
-<style>
-.qrcode-reader__camera,
-.qrcode-reader__overlay {
-  display: none;
-}
-.video-wrapper {
-  width: 100vw;
-  height: auto;
-}
-.scan-area {
-  position: absolute;
-  z-index: 1;
-  top: auto;
-  left: auto;
-  bottom: auto;
-  right: auto;
-  width: 100vw;
-  height: 100vw;
-  padding: 40px;
-}
-.video {
-  width: 100vw;
-  height: auto;
-  top: auto;
-  left: auto;
-  bottom: auto;
-  right: auto;
-}
-.scan-image {
-  width: 100%;
-  height: 100%;
-  background: url('/img/frame.png') no-repeat center;
-  background-size: cover;
-}
-.video-bottom {
-  color: #716658;
-  text-align: center;
-  padding-top: 50px;
+<style lang="scss">
+.reading {
+  .qrcode-reader__camera,
+  .qrcode-reader__overlay {
+    display: none;
+  }
+  .video-wrapper {
+    width: 100vw;
+    height: auto;
+  }
+  .scan-area {
+    position: absolute;
+    z-index: 1;
+    top: auto;
+    left: auto;
+    bottom: auto;
+    right: auto;
+    width: 100vw;
+    height: 100vw;
+    padding: 40px;
+  }
+  .video {
+    width: 100vw;
+    height: auto;
+    top: auto;
+    left: auto;
+    bottom: auto;
+    right: auto;
+  }
+  .scan-image {
+    width: 100%;
+    height: 100%;
+    background: url('/img/frame.png') no-repeat center;
+    background-size: cover;
+  }
+  .video-bottom {
+    color: #716658;
+    text-align: center;
+    padding-top: 50px;
+  }
 }
 </style>

@@ -1,17 +1,40 @@
 <template>
-  <div>
+  <div class="emotiondetection">
     <div class="video-wrapper">
       <canvas width="640" height="640" class="overlay" ref="overlay" v-show="!shoted"></canvas>
       <canvas width="640" height="640" class="video" ref="video"></canvas>
       <video width="640" height="640" class="videoel" ref="videoel" preload="auto" loop playsinline autoplay></video>
     </div>
-    <button @click="switchCamera">switch camea</button>
-    <v-progress-linear
+    <v-btn
       v-if="!shoted"
-      height="20"
-      v-model="smileVoltage"
-    ></v-progress-linear>
-    <Upload v-if="shoted" :video="video"/>
+      fab
+      dark
+      color="light-blue lighten-3"
+      class="button--switch"
+      @click="switchCamera">
+      <v-icon dark>camera_front</v-icon>
+    </v-btn>
+
+    <v-container grid-list-md class="video--bottom">
+      <v-layout row wrap justify-center>
+        <v-flex xs10>
+
+          <div v-if="!shoted">
+            <p class="headline text-xs-center">Say cheese!</p>
+            <v-progress-linear
+              background-color="pink lighten-4"
+              color="pink lighten-2"
+              height="30"
+              v-model="smileVoltage"
+            ></v-progress-linear>
+          </div>
+
+          <div v-if="shoted">
+            <Upload :video="video"/>
+          </div>
+        </v-flex>
+      </v-layout>
+    </v-container>
   </div>
 </template>
 
@@ -24,7 +47,7 @@
   import emotionModel from '@/components/models/emotion'
 
   const clm = clmtrackr.default;
-  const THRESHOLD      = 60; // 笑顔シャッターの閾値
+  const THRESHOLD      = 70; // 笑顔シャッターの閾値
   const THRESHOLD_TIME = 500; // 笑顔判定の閾値持続時間
   
   export default {
@@ -183,12 +206,12 @@
       deleteCamera() {
         return new Promise(resolve => {
           if (this.vid.srcObject) {
-            this.vid.srcObject.getVideoTracks().forEach(devise => {
-              devise.stop();
+            this.vid.srcObject.getVideoTracks().forEach(device => {
+              device.stop();
             });
             this.vid.srcObject = null;
-            resolve();
           }
+          resolve(true);
         });   
       },
 
@@ -204,14 +227,17 @@
       },
 
       snapshot() {
-        this.deleteCamera();
-        this.shoted = true;
+        this.deleteCamera().then(() => {
+          this.shoted = true;
+        });
       }
 
     },
     beforeDestroy() {
-      this.deleteCamera();
-      if (this.cancelId !== null) window.cancelAnimationFrame(this.cancelId)
+      this.ctrack.stop();
+      this.deleteCamera().then(() => {
+        if (this.cancelId !== null) window.cancelAnimationFrame(this.cancelId)
+      });
     },
     watch: {
       emotionParam(val) {
@@ -228,26 +254,36 @@
   }
 </script>
 
-<style scoped>
-.video-wrapper {
-  width: 100vw;
-  height: auto;
-}
-.videoel {
-  display: none;
-}
-.overlay, .video {
-  width: 100vw;
-  height: auto;
-  top: auto;
-  left: auto;
-  bottom: auto;
-  right: auto;
-}
-.video {
-  z-index: 1;
-}
-.overlay {
-  z-index: 2;
+<style lang="scss">
+.emotiondetection {
+  .video-wrapper {
+    width: 100vw;
+    height: auto;
+  }
+  .videoel {
+    display: none;
+  }
+  .overlay, .video {
+    width: 100vw;
+    height: auto;
+    top: auto;
+    left: auto;
+    bottom: auto;
+    right: auto;
+  }
+  .video {
+    z-index: 1;
+  }
+  .overlay {
+    z-index: 2;
+  }
+  .button--switch {
+    position: absolute;
+    margin: -35px 35px 0 0;
+    right: 0;
+  }
+  .video--bottom {
+    padding-top: 50px;
+  }
 }
 </style>

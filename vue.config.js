@@ -1,4 +1,4 @@
-var webpack = require('webpack');
+// var webpack = require('webpack');
 
 module.exports = {
   configureWebpack: {
@@ -6,8 +6,8 @@ module.exports = {
     ]
   },
   pwa: {
-    name: 'i smail',
-    themeColor: '#FFC107',
+    name: 'ya smail',
+    themeColor: '#FFFFFF',
     msTileColor: '#000000',
     appleMobileWebAppCapable: 'yes',
     appleMobileWebAppStatusBarStyle: 'black',

@@ -7,7 +7,7 @@
             <v-icon>arrow_back</v-icon>
           </v-btn>
         </transition>
-        <v-toolbar-title>ya-smile</v-toolbar-title>
+        <v-toolbar-title>ya smile</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn
           icon
