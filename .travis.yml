@@ -10,6 +10,6 @@ install:
 script:
   - yarn run build --mode=production
 after_success:
-  - yarn run deploy -- --token $FIREBASE_TOKEN
+  - firebase deploy --token $FIREBASE_TOKEN
 
 
