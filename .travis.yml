@@ -5,11 +5,15 @@ branches:
 node_js:
   - '8'
 cache: yarn
-before_install:
-  - npm install -g firebase-tools
 install:
   - yarn install
 script:
   - yarn run build --mode=production
 after_success:
-  - firebase deploy --token $FIREBASE_TOKEN
+  - firebase deploy
+deploy:
+  provider: firebase
+  skip_cleanup: true
+  token:
+    secure: $FIREBASE_TOKEN
+  project: $FIREBASE_PROJECT
