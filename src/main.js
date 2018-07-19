@@ -43,8 +43,10 @@ Vue.mixin(titleMixin)
 
 Vue.config.productionTip = false
 
-new Vue({
-  router,
-  store: Store,
-  render: h => h(App)
-}).$mount('#app')
+document.addEventListener('DOMContentLoaded', () => {
+  new Vue({
+    router,
+    store: Store,
+    render: h => h(App)
+  }).$mount('#app')
+})
